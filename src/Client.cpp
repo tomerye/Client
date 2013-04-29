@@ -51,6 +51,7 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 						boost::asio::placeholders::error, newPacket));
 
 		std::cout << newPacket->id_ << std::endl;
+		delete packet;
 	}
 }
 
