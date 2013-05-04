@@ -28,7 +28,6 @@ public:
 	}
 
 	~AsyncSerializationConnection() {
-		delete socket_;
 	}
 
 	template<typename T, typename Handler>

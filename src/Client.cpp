@@ -11,6 +11,8 @@ Client::Client(boost::asio::io_service &io_service, const std::string &host,
 		const std::string port) :
 		p(), socket_(io_service) {
 	id = std::rand() % 1000 + 1;
+
+	std::cout << "Client ID:" << id << std::endl;
 	boost::asio::ip::tcp::resolver resolver(io_service);
 	boost::asio::ip::tcp::resolver::query query(host, port);
 	boost::asio::ip::tcp::resolver::iterator endpoint_iterator =
@@ -39,6 +41,9 @@ void Client::handleConnect(const boost::system::error_code& e) {
 				boost::bind(&Client::handlePacketAction, this,
 						boost::asio::placeholders::error, newPacket));
 
+	}
+	else{
+		std::cout << "error:handleConnect/n";
 	}
 }
 
