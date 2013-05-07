@@ -28,6 +28,7 @@ public:
 	}
 
 	~AsyncSerializationConnection() {
+		std::cout << "AsyncSerializationConnection cont/n";
 	}
 
 	template<typename T, typename Handler>

@@ -7,10 +7,10 @@
 
 #include "Client.h"
 
+using namespace std;
 Client::Client(boost::asio::io_service &io_service, const std::string &host,
-		const std::string port) :
-		p(), socket_(io_service) {
-	id = std::rand() % 1000 + 1;
+		const std::string port, int id) :
+		p(), socket_(io_service), id_(id) {
 
 	std::cout << "Client ID:" << id << std::endl;
 	boost::asio::ip::tcp::resolver resolver(io_service);
@@ -23,8 +23,11 @@ Client::Client(boost::asio::io_service &io_service, const std::string &host,
 }
 
 void Client::sendID(boost::system::error_code e) {
+
 	if (!e) {
-		boost::asio::async_write(socket_, boost::asio::buffer(&id, sizeof(id)),
+		cout << "sendID:" << id_ << endl;
+		boost::asio::async_write(socket_,
+				boost::asio::buffer(&id_, sizeof(id_)),
 				boost::bind(&Client::handleConnect, this,
 						boost::asio::placeholders::error));
 	} else {
@@ -33,6 +36,7 @@ void Client::sendID(boost::system::error_code e) {
 }
 
 void Client::handleConnect(const boost::system::error_code& e) {
+	cout << "handleConnect\n";
 	if (!e) {
 		connection_ = new AsyncSerializationConnection(&socket_);
 
@@ -41,8 +45,7 @@ void Client::handleConnect(const boost::system::error_code& e) {
 				boost::bind(&Client::handlePacketAction, this,
 						boost::asio::placeholders::error, newPacket));
 
-	}
-	else{
+	} else {
 		std::cout << "error:handleConnect/n";
 	}
 }
@@ -60,7 +63,13 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 	}
 }
 
-void Client::sendPacket(Packet &packet) {
+void Client::sendPacket(Packet packet) {
+	Packet p;
+	p.id_ = 333;
+	p.file_path_ = "sfdsf";
+	p.opcode_ = "ddd";
+	packets_.push_back(p);
+	sleep(3);
 	connection_->async_write(packets_,
 			boost::bind(&Client::handleSendPacket, this,
 					boost::asio::placeholders::error));
