@@ -66,7 +66,7 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 void Client::sendPacket(Packet packet) {
 	std::vector<Packet> *packetsVec = new std::vector<Packet>();
 	packetsVec->push_back(packet);
-	connection_->async_write(packetsVec,
+	connection_->async_write(*packetsVec,
 			boost::bind(&Client::handleSendPacket, this,
 					boost::asio::placeholders::error, packetsVec));
 
