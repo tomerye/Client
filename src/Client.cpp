@@ -46,7 +46,7 @@ void Client::handleConnect(const boost::system::error_code& e) {
 						boost::asio::placeholders::error, newPacket));
 
 	} else {
-		std::cout << "error:handleConnect/n";
+		std::cout << "error:handleConnect\n";
 	}
 }
 
@@ -64,22 +64,22 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 }
 
 void Client::sendPacket(Packet packet) {
-	Packet p;
-	p.id_ = 333;
-	p.file_path_ = "sfdsf";
-	p.opcode_ = "ddd";
-	packets_.push_back(p);
-	sleep(3);
-	connection_->async_write(packets_,
+	std::vector<Packet> *packetsVec = new std::vector<Packet>();
+	packetsVec->push_back(packet);
+	connection_->async_write(packetsVec,
 			boost::bind(&Client::handleSendPacket, this,
-					boost::asio::placeholders::error));
+					boost::asio::placeholders::error, packetsVec));
 
 }
 
-void Client::handleSendPacket(boost::system::error_code e) {
+void Client::handleSendPacket(boost::system::error_code e,
+		std::vector<Packet> *packetsVec) {
 	if (!e) {
 		std::cout << "Packet sent!\n";
+	} else {
+		std::cout << "error happen in send packet!\n";
 	}
+	delete packetsVec;
 }
 
 Client::~Client() {
