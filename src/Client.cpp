@@ -39,28 +39,38 @@ void Client::handleConnect(const boost::system::error_code& e) {
 	cout << "handleConnect\n";
 	if (!e) {
 		connection_ = new AsyncSerializationConnection(&socket_);
-
-		Packet *newPacket = new Packet();
-		connection_->async_read(newPacket,
-				boost::bind(&Client::handlePacketAction, this,
-						boost::asio::placeholders::error, newPacket));
-
+		waitForPacket();
 	} else {
 		std::cout << "error:handleConnect\n";
 	}
 }
 
-void Client::handlePacketAction(const boost::system::error_code& e,
-		Packet *packet) {
-	if (!e) {
-		Packet *newPacket = new Packet();
-		connection_->async_read(newPacket,
-				boost::bind(&Client::handlePacketAction, this,
-						boost::asio::placeholders::error, newPacket));
+void Client::waitForPacket() {
+	std::cout << "waiting for packets from server\n";
+	std::cout.flush();
+	std::vector<Packet> *packetsVec = new std::vector<Packet>();
+	connection_->async_read(*packetsVec,
+			boost::bind(&Client::handlePacketAction, this,
+					boost::asio::placeholders::error, packetsVec));
+}
 
-		std::cout << newPacket->id_ << std::endl;
-		delete packet;
+void Client::handlePacketAction(const boost::system::error_code& e,
+		std::vector<Packet> *packetsVec) {
+	waitForPacket();
+	if (!e) {
+		std::cout << "parsing the packet\n";
+		for (std::size_t i = 0; i < packetsVec->size(); ++i) {
+			std::cout << "Recived id:" << ((*packetsVec)[i]).id_ << std::endl;
+			std::cout << "Recived file path:" << ((*packetsVec)[i]).file_path_
+					<< std::endl;
+			std::cout << "Recived opcode:" << ((*packetsVec)[i]).opcode_
+					<< std::endl;
+			std::cout.flush();
+		}
+	} else {
+		std::cout << "error while parsing the packet\n";
 	}
+	delete packetsVec;
 }
 
 void Client::sendPacket(Packet packet) {

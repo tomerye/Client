@@ -30,8 +30,10 @@ private:
 	void sendID(boost::system::error_code e);
 	void handleConnect(const boost::system::error_code& e);
 	void handleRecv(boost::system::error_code e);
-	void handlePacketAction(const boost::system::error_code& e, Packet *packet);
+	void handlePacketAction(const boost::system::error_code& e,
+			std::vector<Packet> *packetsVec);
 
+	void waitForPacket();
 	void handleSendPacket(boost::system::error_code e,
 			std::vector<Packet> *packetsVec);
 
