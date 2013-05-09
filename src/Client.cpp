@@ -7,10 +7,12 @@
 
 #include "Client.h"
 
+using namespace std;
 Client::Client(boost::asio::io_service &io_service, const std::string &host,
-		const std::string port) :
-		p(), socket_(io_service) {
-	id = std::rand() % 1000 + 1;
+		const std::string port, int id) :
+		p(), socket_(io_service), id_(id) {
+
+	std::cout << "Client ID:" << id << std::endl;
 	boost::asio::ip::tcp::resolver resolver(io_service);
 	boost::asio::ip::tcp::resolver::query query(host, port);
 	boost::asio::ip::tcp::resolver::iterator endpoint_iterator =
@@ -21,8 +23,11 @@ Client::Client(boost::asio::io_service &io_service, const std::string &host,
 }
 
 void Client::sendID(boost::system::error_code e) {
+
 	if (!e) {
-		boost::asio::async_write(socket_, boost::asio::buffer(&id, sizeof(id)),
+		cout << "sendID:" << id_ << endl;
+		boost::asio::async_write(socket_,
+				boost::asio::buffer(&id_, sizeof(id_)),
 				boost::bind(&Client::handleConnect, this,
 						boost::asio::placeholders::error));
 	} else {
@@ -31,6 +36,7 @@ void Client::sendID(boost::system::error_code e) {
 }
 
 void Client::handleConnect(const boost::system::error_code& e) {
+	cout << "handleConnect\n";
 	if (!e) {
 		connection_ = new AsyncSerializationConnection(&socket_);
 
@@ -39,6 +45,8 @@ void Client::handleConnect(const boost::system::error_code& e) {
 				boost::bind(&Client::handlePacketAction, this,
 						boost::asio::placeholders::error, newPacket));
 
+	} else {
+		std::cout << "error:handleConnect\n";
 	}
 }
 
@@ -55,17 +63,23 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 	}
 }
 
-void Client::sendPacket(Packet &packet) {
-	connection_->async_write(packets_,
+void Client::sendPacket(Packet packet) {
+	std::vector<Packet> *packetsVec = new std::vector<Packet>();
+	packetsVec->push_back(packet);
+	connection_->async_write(packetsVec,
 			boost::bind(&Client::handleSendPacket, this,
-					boost::asio::placeholders::error));
+					boost::asio::placeholders::error, packetsVec));
 
 }
 
-void Client::handleSendPacket(boost::system::error_code e) {
+void Client::handleSendPacket(boost::system::error_code e,
+		std::vector<Packet> *packetsVec) {
 	if (!e) {
 		std::cout << "Packet sent!\n";
+	} else {
+		std::cout << "error happen in send packet!\n";
 	}
+	delete packetsVec;
 }
 
 Client::~Client() {

@@ -20,7 +20,6 @@
 #include <sstream>
 #include <vector>
 #include "Packet.h"
-
 class AsyncSerializationConnection {
 public:
 	AsyncSerializationConnection(boost::asio::ip::tcp::socket *socket) {
@@ -28,7 +27,7 @@ public:
 	}
 
 	~AsyncSerializationConnection() {
-		delete socket_;
+		std::cout << "AsyncSerializationConnection destructor\n";
 	}
 
 	template<typename T, typename Handler>
