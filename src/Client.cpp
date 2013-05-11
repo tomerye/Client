@@ -56,8 +56,9 @@ void Client::waitForPacket() {
 
 void Client::handlePacketAction(const boost::system::error_code& e,
 		std::vector<Packet> *packetsVec) {
-	waitForPacket();
+
 	if (!e) {
+		waitForPacket();
 		std::cout << "parsing the packet\n";
 		for (std::size_t i = 0; i < packetsVec->size(); ++i) {
 			std::cout << "Recived id:" << ((*packetsVec)[i]).id_ << std::endl;
