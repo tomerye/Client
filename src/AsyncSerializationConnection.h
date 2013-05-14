@@ -19,7 +19,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include "Packet.h"
+#include "PacketForServer.h"
+
 class AsyncSerializationConnection {
 public:
 	AsyncSerializationConnection(boost::asio::ip::tcp::socket *socket) {

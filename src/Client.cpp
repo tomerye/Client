@@ -48,14 +48,14 @@ void Client::handleConnect(const boost::system::error_code& e) {
 void Client::waitForPacket() {
 	std::cout << "waiting for packets from server\n";
 	std::cout.flush();
-	std::vector<Packet> *packetsVec = new std::vector<Packet>();
+	std::vector<PacketForClient> *packetsVec = new std::vector<PacketForClient>();
 	connection_->async_read(*packetsVec,
 			boost::bind(&Client::handlePacketAction, this,
 					boost::asio::placeholders::error, packetsVec));
 }
 
 void Client::handlePacketAction(const boost::system::error_code& e,
-		std::vector<Packet> *packetsVec) {
+		std::vector<PacketForClient> *packetsVec) {
 
 	if (!e) {
 		waitForPacket();
@@ -74,8 +74,8 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 	delete packetsVec;
 }
 
-void Client::sendPacket(Packet packet) {
-	std::vector<Packet> *packetsVec = new std::vector<Packet>();
+void Client::sendPacket(PacketForServer packet) {
+	std::vector<PacketForServer> *packetsVec = new std::vector<PacketForServer>();
 	packetsVec->push_back(packet);
 	connection_->async_write(*packetsVec,
 			boost::bind(&Client::handleSendPacket, this,
@@ -84,7 +84,7 @@ void Client::sendPacket(Packet packet) {
 }
 
 void Client::handleSendPacket(boost::system::error_code e,
-		std::vector<Packet> *packetsVec) {
+		std::vector<PacketForServer> *packetsVec) {
 	if (!e) {
 		std::cout << "Packet sent!\n";
 	} else {

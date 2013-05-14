@@ -11,7 +11,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
-#include "Packet.h"
+#include "PacketForServer.h"
+#include "PacketForClient.h"
 #include "AsyncSerializationConnection.h"
 #include <boost/serialization/vector.hpp>
 #include <iostream>
@@ -24,21 +25,21 @@ public:
 			const std::string port, int id);
 
 	virtual ~Client();
-	void sendPacket(Packet p);
+	void sendPacket(PacketForServer p);
 private:
 	void test(const boost::system::error_code& e);
 	void sendID(boost::system::error_code e);
 	void handleConnect(const boost::system::error_code& e);
 	void handleRecv(boost::system::error_code e);
 	void handlePacketAction(const boost::system::error_code& e,
-			std::vector<Packet> *packetsVec);
+			std::vector<PacketForClient> *packetsVec);
 
 	void waitForPacket();
 	void handleSendPacket(boost::system::error_code e,
-			std::vector<Packet> *packetsVec);
+			std::vector<PacketForServer> *packetsVec);
 
-	std::vector<Packet> packets_;
-	Packet p;
+	std::vector<PacketForServer> packets_;
+	PacketForServer p;
 	size_t id_;
 	boost::asio::ip::tcp::socket socket_;
 	AsyncSerializationConnection *connection_;

@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 	Client client(io_service, "127.0.0.1", "55555", std::atoi(argv[1]));
 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
 //	io_service.run();
-	Packet p;
+	PacketForServer p;
 	p.id_ = 333;
 	p.file_path_ = "sfdsf";
 	p.opcode_ = "ddd";
