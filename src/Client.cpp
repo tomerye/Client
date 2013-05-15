@@ -48,49 +48,46 @@ void Client::handleConnect(const boost::system::error_code& e) {
 void Client::waitForPacket() {
 	std::cout << "waiting for packets from server\n";
 	std::cout.flush();
-	std::vector<PacketForClient> *packetsVec = new std::vector<PacketForClient>();
-	connection_->async_read(*packetsVec,
+	PacketForClient *newPacket = new PacketForClient();
+	connection_->async_read(*newPacket,
 			boost::bind(&Client::handlePacketAction, this,
-					boost::asio::placeholders::error, packetsVec));
+					boost::asio::placeholders::error, newPacket));
 }
 
 void Client::handlePacketAction(const boost::system::error_code& e,
-		std::vector<PacketForClient> *packetsVec) {
+		PacketForClient *newPacket) {
 
 	if (!e) {
 		waitForPacket();
 		std::cout << "parsing the packet\n";
-		for (std::size_t i = 0; i < packetsVec->size(); ++i) {
-			std::cout << "Recived id:" << ((*packetsVec)[i]).id_ << std::endl;
-			std::cout << "Recived file path:" << ((*packetsVec)[i]).file_path_
-					<< std::endl;
-			std::cout << "Recived opcode:" << ((*packetsVec)[i]).opcode_
-					<< std::endl;
-			std::cout.flush();
-		}
+
+		std::cout << "Recived id:" << newPacket->id_ << std::endl;
+		std::cout << "Recived file path:" << newPacket->file_path_
+				<< std::endl;
+		std::cout << "Recived opcode:" << newPacket->opcode_
+				<< std::endl;
+
 	} else {
 		std::cout << "error while parsing the packet\n";
 	}
-	delete packetsVec;
+	delete newPacket;
 }
 
-void Client::sendPacket(PacketForServer packet) {
-	std::vector<PacketForServer> *packetsVec = new std::vector<PacketForServer>();
-	packetsVec->push_back(packet);
-	connection_->async_write(*packetsVec,
+void Client::sendPacket(PacketForServer *packet) {
+	connection_->async_write(*packet,
 			boost::bind(&Client::handleSendPacket, this,
-					boost::asio::placeholders::error, packetsVec));
+					boost::asio::placeholders::error, packet));
 
 }
 
 void Client::handleSendPacket(boost::system::error_code e,
-		std::vector<PacketForServer> *packetsVec) {
+		PacketForServer *packet) {
 	if (!e) {
 		std::cout << "Packet sent!\n";
 	} else {
 		std::cout << "error happen in send packet!\n";
 	}
-	delete packetsVec;
+	delete packet;
 }
 
 Client::~Client() {

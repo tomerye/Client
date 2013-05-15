@@ -25,18 +25,17 @@ public:
 			const std::string port, int id);
 
 	virtual ~Client();
-	void sendPacket(PacketForServer p);
+	void sendPacket(PacketForServer *packet);
 private:
 	void test(const boost::system::error_code& e);
 	void sendID(boost::system::error_code e);
 	void handleConnect(const boost::system::error_code& e);
 	void handleRecv(boost::system::error_code e);
 	void handlePacketAction(const boost::system::error_code& e,
-			std::vector<PacketForClient> *packetsVec);
+			PacketForClient *newPacket);
 
 	void waitForPacket();
-	void handleSendPacket(boost::system::error_code e,
-			std::vector<PacketForServer> *packetsVec);
+	void handleSendPacket(boost::system::error_code e, PacketForServer *packet);
 
 	std::vector<PacketForServer> packets_;
 	PacketForServer p;

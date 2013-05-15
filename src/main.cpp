@@ -26,13 +26,16 @@ int main(int argc, char *argv[]) {
 	Client client(io_service, "127.0.0.1", "55555", std::atoi(argv[1]));
 	boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
 //	io_service.run();
-	PacketForServer p;
-	p.id_ = 333;
-	p.file_path_ = "sfdsf";
-	p.opcode_ = "ddd";
+
 	char line[10];
-	while (std::cin.getline(line, 10))
+	while (std::cin.getline(line, 10)) {
+		PacketForServer *p = new PacketForServer;
+		p->id_ = 333;
+		p->file_path_ = "sfdsf";
+		p->opcode_ = "ddd";
 		client.sendPacket(p);
+
+	}
 	sleep(10);
 //	t.join();
 //	io_service.run();
