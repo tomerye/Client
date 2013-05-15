@@ -17,8 +17,9 @@
 #include <boost/serialization/vector.hpp>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
-#include <vector>
+#include <deque>
 #include <boost/system/error_code.hpp>
+
 class Client {
 public:
 	Client(boost::asio::io_service &io_service, const std::string &host,
@@ -35,10 +36,9 @@ private:
 			PacketForClient *newPacket);
 
 	void waitForPacket();
-	void handleSendPacket(boost::system::error_code e, PacketForServer *packet);
+	void handleSendPacket(boost::system::error_code e);
 
-	std::vector<PacketForServer> packets_;
-	PacketForServer p;
+	std::deque<PacketForServer*> outPacketsBuffer_;
 	size_t id_;
 	boost::asio::ip::tcp::socket socket_;
 	AsyncSerializationConnection *connection_;

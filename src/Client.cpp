@@ -10,7 +10,7 @@
 using namespace std;
 Client::Client(boost::asio::io_service &io_service, const std::string &host,
 		const std::string port, int id) :
-		p(), socket_(io_service), id_(id) {
+		id_(id), socket_(io_service) {
 
 	std::cout << "Client ID:" << id << std::endl;
 	boost::asio::ip::tcp::resolver resolver(io_service);
@@ -62,10 +62,8 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 		std::cout << "parsing the packet\n";
 
 		std::cout << "Recived id:" << newPacket->id_ << std::endl;
-		std::cout << "Recived file path:" << newPacket->file_path_
-				<< std::endl;
-		std::cout << "Recived opcode:" << newPacket->opcode_
-				<< std::endl;
+		std::cout << "Recived file path:" << newPacket->file_path_ << std::endl;
+		std::cout << "Recived opcode:" << newPacket->opcode_ << std::endl;
 
 	} else {
 		std::cout << "error while parsing the packet\n";
@@ -74,20 +72,30 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 }
 
 void Client::sendPacket(PacketForServer *packet) {
-	connection_->async_write(*packet,
-			boost::bind(&Client::handleSendPacket, this,
-					boost::asio::placeholders::error, packet));
-
+	bool isEmpty = this->outPacketsBuffer_.empty();
+	this->outPacketsBuffer_.push_back(packet);
+	if (isEmpty) {
+		connection_->async_write(*(this->outPacketsBuffer_.front()),
+				boost::bind(&Client::handleSendPacket, this,
+						boost::asio::placeholders::error));
+	}
 }
 
-void Client::handleSendPacket(boost::system::error_code e,
-		PacketForServer *packet) {
+void Client::handleSendPacket(boost::system::error_code e) {
 	if (!e) {
 		std::cout << "Packet sent!\n";
+		PacketForServer *tmp = this->outPacketsBuffer_.front();
+		this->outPacketsBuffer_.pop_front();
+		delete tmp;
+		if(!this->outPacketsBuffer_.empty()){
+			connection_->async_write(*(this->outPacketsBuffer_.front()),
+							boost::bind(&Client::handleSendPacket, this,
+									boost::asio::placeholders::error));
+		}
 	} else {
 		std::cout << "error happen in send packet!\n";
 	}
-	delete packet;
+
 }
 
 Client::~Client() {
