@@ -23,7 +23,7 @@
 class Client {
 public:
 	Client(boost::asio::io_service &io_service, const std::string &host,
-			const std::string port, int id);
+			const std::string port, u_int32_t id);
 
 	virtual ~Client();
 	void sendPacket(PacketForServer *packet);
@@ -39,7 +39,7 @@ private:
 	void handleSendPacket(boost::system::error_code e);
 
 	std::deque<PacketForServer*> outPacketsBuffer_;
-	size_t id_;
+	u_int32_t id_;
 	boost::asio::ip::tcp::socket socket_;
 	AsyncSerializationConnection *connection_;
 };

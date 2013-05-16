@@ -9,7 +9,7 @@
 
 using namespace std;
 Client::Client(boost::asio::io_service &io_service, const std::string &host,
-		const std::string port, int id) :
+		const std::string port, uint32_t id) :
 		id_(id), socket_(io_service) {
 
 	std::cout << "Client ID:" << id << std::endl;
@@ -60,10 +60,14 @@ void Client::handlePacketAction(const boost::system::error_code& e,
 	if (!e) {
 		waitForPacket();
 		std::cout << "parsing the packet\n";
-
-		std::cout << "Recived id:" << newPacket->id_ << std::endl;
-		std::cout << "Recived file path:" << newPacket->file_path_ << std::endl;
 		std::cout << "Recived opcode:" << newPacket->opcode_ << std::endl;
+		switch (newPacket->opcode_) {
+			case 1:
+
+				break;
+			default:
+				break;
+		}
 
 	} else {
 		std::cout << "error while parsing the packet\n";
