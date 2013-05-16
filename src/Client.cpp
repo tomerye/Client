@@ -9,8 +9,8 @@
 
 using namespace std;
 Client::Client(boost::asio::io_service &io_service, const std::string &host,
-		const std::string port, int id) :
-		p(), socket_(io_service), id_(id) {
+		const std::string port, uint32_t id) :
+		id_(id), socket_(io_service) {
 
 	std::cout << "Client ID:" << id << std::endl;
 	boost::asio::ip::tcp::resolver resolver(io_service);
@@ -39,47 +39,67 @@ void Client::handleConnect(const boost::system::error_code& e) {
 	cout << "handleConnect\n";
 	if (!e) {
 		connection_ = new AsyncSerializationConnection(&socket_);
-
-		Packet *newPacket = new Packet();
-		connection_->async_read(newPacket,
-				boost::bind(&Client::handlePacketAction, this,
-						boost::asio::placeholders::error, newPacket));
-
+		waitForPacket();
 	} else {
 		std::cout << "error:handleConnect\n";
 	}
 }
 
-void Client::handlePacketAction(const boost::system::error_code& e,
-		Packet *packet) {
-	if (!e) {
-		Packet *newPacket = new Packet();
-		connection_->async_read(newPacket,
-				boost::bind(&Client::handlePacketAction, this,
-						boost::asio::placeholders::error, newPacket));
+void Client::waitForPacket() {
+	std::cout << "waiting for packets from server\n";
+	std::cout.flush();
+	PacketForClient *newPacket = new PacketForClient();
+	connection_->async_read(*newPacket,
+			boost::bind(&Client::handlePacketAction, this,
+					boost::asio::placeholders::error, newPacket));
+}
 
-		std::cout << newPacket->id_ << std::endl;
-		delete packet;
+void Client::handlePacketAction(const boost::system::error_code& e,
+		PacketForClient *newPacket) {
+
+	if (!e) {
+		waitForPacket();
+		std::cout << "parsing the packet\n";
+		std::cout << "Recived opcode:" << newPacket->opcode_ << std::endl;
+		switch (newPacket->opcode_) {
+			case 1:
+
+				break;
+			default:
+				break;
+		}
+
+	} else {
+		std::cout << "error while parsing the packet\n";
+	}
+	delete newPacket;
+}
+
+void Client::sendPacket(PacketForServer *packet) {
+	bool isEmpty = this->outPacketsBuffer_.empty();
+	this->outPacketsBuffer_.push_back(packet);
+	if (isEmpty) {
+		connection_->async_write(*(this->outPacketsBuffer_.front()),
+				boost::bind(&Client::handleSendPacket, this,
+						boost::asio::placeholders::error));
 	}
 }
 
-void Client::sendPacket(Packet packet) {
-	std::vector<Packet> *packetsVec = new std::vector<Packet>();
-	packetsVec->push_back(packet);
-	connection_->async_write(packetsVec,
-			boost::bind(&Client::handleSendPacket, this,
-					boost::asio::placeholders::error, packetsVec));
-
-}
-
-void Client::handleSendPacket(boost::system::error_code e,
-		std::vector<Packet> *packetsVec) {
+void Client::handleSendPacket(boost::system::error_code e) {
 	if (!e) {
 		std::cout << "Packet sent!\n";
+		PacketForServer *tmp = this->outPacketsBuffer_.front();
+		this->outPacketsBuffer_.pop_front();
+		delete tmp;
+		if(!this->outPacketsBuffer_.empty()){
+			connection_->async_write(*(this->outPacketsBuffer_.front()),
+							boost::bind(&Client::handleSendPacket, this,
+									boost::asio::placeholders::error));
+		}
 	} else {
 		std::cout << "error happen in send packet!\n";
 	}
-	delete packetsVec;
+
 }
 
 Client::~Client() {

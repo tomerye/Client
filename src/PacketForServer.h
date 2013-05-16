@@ -10,7 +10,7 @@
 
 
 
-struct Packet {
+struct PacketForServer {
 	int id_;
 	std::string opcode_;
 	std::string file_path_;
