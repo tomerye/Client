@@ -13,9 +13,9 @@ public:
 	Gpio();
 	virtual ~Gpio();
 	int init(unsigned int gpioNum);
-
-
-
+	int gpio_set_value(unsigned int gpio, unsigned int value);
+	int gpio_get_value(unsigned int gpio, unsigned int *value);
+	int gpio_fd_open(unsigned int gpio);
 };
 
 #endif /* GPIO_H_ */
