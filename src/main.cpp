@@ -15,6 +15,8 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
+#include "imageProcessing.h"
+
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
@@ -28,14 +30,7 @@ int main(int argc, char *argv[]) {
 //	io_service.run();
 
 	char line[10];
-	while (std::cin.getline(line, 10)) {
-		PacketForServer *p = new PacketForServer;
-		p->id_ = 333;
-		p->file_path_ = "sfdsf";
-		p->opcode_ = "ddd";
-		client.sendPacket(p);
-
-	}
+	imageProcessing();
 	sleep(10);
 //	t.join();
 //	io_service.run();
