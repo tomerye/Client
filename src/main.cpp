@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 //	io_service.run();
 
 	char line[10];
-	imageProcessing();
+	imageProcessing(&client);
 	sleep(10);
 //	t.join();
 //	io_service.run();
